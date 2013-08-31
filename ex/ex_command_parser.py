@@ -207,7 +207,25 @@ EX_COMMANDS = {
                                 invocations=(),
                                 error_on=(ex_error.ERR_NO_RANGE_ALLOWED,
                                           ex_error.ERR_NO_BANG_ALLOWED,
-                                          ex_error.ERR_TRAILING_CHARS)
+                                          ex_error.ERR_TRAILING_CHARS),
+                                ),
+    ('vsplit', 'vsplit'): ex_cmd_data(
+                                command='ex_vsplit',
+                                invocations=(
+                                    re.compile(r'^$'),
+                                    re.compile(r'^\s*(?P<file_name>.+)$'),
+                                ),
+                                error_on=(ex_error.ERR_NO_RANGE_ALLOWED,
+                                          ex_error.ERR_NO_BANG_ALLOWED,)
+                                ),
+    ('unvsplit', 'unvsplit'): ex_cmd_data(
+                                command='ex_unvsplit',
+                                invocations=(
+                                    re.compile(r'^$'),
+                                ),
+                                error_on=(ex_error.ERR_NO_RANGE_ALLOWED,
+                                          ex_error.ERR_NO_BANG_ALLOWED,
+                                          ex_error.ERR_TRAILING_CHARS,)
                                 ),
     ('delete', 'd'): ex_cmd_data(
                                 command='ex_delete',
@@ -246,7 +264,9 @@ EX_COMMANDS = {
                                 ),
     ('edit', 'e'): ex_cmd_data(
                                 command='ex_edit',
-                                invocations=(re.compile(r"^$"),),
+                                invocations=(re.compile(r"^$"),
+                                             re.compile(r"^(?P<file_name>.+)$"),
+                                ),
                                 error_on=(ex_error.ERR_NO_RANGE_ALLOWED,)
                                 ),
     ('cquit', 'cq'): ex_cmd_data(
@@ -289,7 +309,8 @@ EX_COMMANDS = {
                                 ),
     (':', ':'): ex_cmd_data(
                         command='ex_goto',
-                        invocations=(),
+                        invocations=(re.compile(r'^$'),
+                        ),
                         error_on=(),
                         ),
     ('!', '!'): ex_cmd_data(
@@ -330,9 +351,25 @@ EX_COMMANDS = {
                                         ex_error.ERR_TRAILING_CHARS,)
                                      ),
     ('cd', 'cd'): ex_cmd_data(command='ex_cd',
-                              invocations=(re.compile(r'^(?P<path>.+)$'),),
+                              invocations=(re.compile(r'^$'),
+                                           re.compile(r'^(?P<path>.+)$'),
+                              ),
                               error_on=(ex_error.ERR_NO_RANGE_ALLOWED,)
                               ),
+
+    ('cdd', 'cdd'): ex_cmd_data(command='ex_cdd',
+                              invocations=(re.compile(r'^(?P<path>.+)$'),),
+                              error_on=(ex_error.ERR_NO_RANGE_ALLOWED,
+                                        ex_error.ERR_TRAILING_CHARS,)
+                              ),
+    ('setlocal', 'setl'): ex_cmd_data(command='ex_set_local',
+                                  invocations=(re.compile(r'^(?P<option>\w+\??)(?:(?P<operator>[+-^]?=)(?P<value>.*))?$'),),
+                                  error_on=(ex_error.ERR_NO_RANGE_ALLOWED,)
+                                  ),
+    ('set', 'se'): ex_cmd_data(command='ex_set',
+                                  invocations=(re.compile(r'^(?P<option>\w+\??)(?:(?P<operator>[+-^]?=)(?P<value>.*))?$'),),
+                                  error_on=(ex_error.ERR_NO_RANGE_ALLOWED,)
+                                  ),
 }
 
 

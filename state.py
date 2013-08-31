@@ -155,7 +155,19 @@ class VintageState(object):
         else:
             # Either we haven't been in any visual mode or we've modified the buffer while in
             # any visual mode.
-            self.view.run_command('glue_marked_undo_groups')
+            #
+            # However, there might be cases where we have a clean buffer. For example, we might
+            # have undone our changes, or saved via standard commands. Assume Sublime Text knows
+            # better than us.
+            #
+            # NOTE: There's an issue in S3 where 'glue_marked_undo_groups' will mark the buffer as
+            # dirty even if there are no intervening changes between the 'mark_groups_for_gluing'
+            # and 'glue_marked_undo_groups' calls. That's why we need to explicitly unmark groups
+            # here if the view reports back as clean.
+            if not self.view.is_dirty():
+                self.view.run_command('unmark_undo_groups_for_gluing')
+            else:
+                self.view.run_command('glue_marked_undo_groups')
 
         self.mode = MODE_NORMAL
 
@@ -960,6 +972,18 @@ class ViFocusRestorerEvent(sublime_plugin.EventListener):
         else:
             # Switching back from another application. Ignore.
             pass
+
+    def on_new(self, view):
+        # Without this, on OS X Vintageous might not initialize correctly if the user leaves
+        # the application in a windowless state and then creates a new buffer.
+        if sublime.platform() == 'osx':
+            _init_vintageous(view)
+
+    def on_load(self, view):
+        # Without this, on OS X Vintageous might not initialize correctly if the user leaves
+        # the application in a windowless state and then creates a new buffer.
+        if sublime.platform() == 'osx':
+            _init_vintageous(view)
 
     def on_deactivated(self, view):
         self.timer = threading.Timer(0.25, self.action)

@@ -21,6 +21,7 @@ from Vintageous.vi.constants import MODE_SELECT
 from Vintageous.vi.constants import regions_transformer
 from Vintageous.vi.constants import regions_transformer_reversed
 from Vintageous.vi.registers import REG_EXPRESSION
+from Vintageous.vi.sublime import restoring_sels
 
 import re
 
@@ -643,9 +644,11 @@ class _vi_repeat(IrreversibleTextCommand):
             self.view.run_command(cmd, args)
         elif cmd == 'sequence':
             for i, _ in enumerate(args['commands']):
-                # Access this shape: {"commands":[['vi_run', {"foo": 100}],...]}
-                args['commands'][i][1]['next_mode'] = MODE_NORMAL
-                args['commands'][i][1]['follow_up_mode'] = 'vi_enter_normal_mode'
+                # We can have either 'vi_run' commands or plain insert mode commands.
+                if args['commands'][i][0] == 'vi_run':
+                    # Access this shape: {"commands":[['vi_run', {"foo": 100}],...]}
+                    args['commands'][i][1]['next_mode'] = MODE_NORMAL
+                    args['commands'][i][1]['follow_up_mode'] = 'vi_enter_normal_mode'
 
             # TODO: Implement counts properly for 'sequence' command.
             for i in range(state.count):
